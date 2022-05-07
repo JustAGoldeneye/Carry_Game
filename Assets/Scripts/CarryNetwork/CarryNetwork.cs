@@ -5,6 +5,9 @@ using UnityEngine;
 public class CarryNetwork : MonoBehaviour
 {
     CarryNode[] Nodes;
+    CarryNode TargetNode;
+    List<CarryNode> Route;
+    float[] DistanceFromStart;
 
     void Start()
     {
@@ -13,19 +16,37 @@ public class CarryNetwork : MonoBehaviour
         Debug.Log(FindRoute(-24, 0, Nodes[0])[0].name);
     }
 
-    CarryNode[] FindRoute(float startX, float startZ, CarryNode targetNode)
+    public CarryNode[] FindRoute(float startX, float startZ, CarryNode targetNode)
     {
-        List<CarryNode> route = new List<CarryNode>();
+        TargetNode = targetNode;
+        Route = new List<CarryNode>();
 
-        route.Add(ClosestNodeToLocation(startX, startZ));
+        Route.Add(ClosestNodeToLocation(startX, startZ));
 
-        float[] distanceTravelled = new float[Nodes.Length];
+        DistanceFromStart = new float[Nodes.Length];
+        for (int i = 0; i < DistanceFromStart.Length; i++)
+        {
+            DistanceFromStart[i] = float.MaxValue;
+            // This will define the distance from the start node to itself as MaxValue but this should not matter as it should never be used
+        }
 
         // TODO
 
-        return route.ToArray();
+        return Route.ToArray();
         // Returns a list of all nodes on the route including the first one that needs to be reached and the target node
-        // Uses A*
+    }
+
+    void AStar(CarryNode current)
+    {
+        foreach (CarryNode neighbor in current.Neighbors)
+        {
+            // JATKA TÄÄLTÄ, katso mallia Wikipediasta
+        }
+    }
+
+    float AStarHeuristic(CarryNode node)
+    {
+        return Vector2.Distance(node.XZVector, TargetNode.XZVector);
     }
 
     CarryNode ClosestNodeToLocation(float x, float z)
