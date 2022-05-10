@@ -5,9 +5,9 @@ using UnityEngine;
 public class CarryNode : MonoBehaviour
 {
     public List<CarryNode> Neighbors;
-    [HideInInspector] public Vector2 XZVector;
+    [HideInInspector] public Vector2 XZVector { get; private set; }
 
-    private void Start()
+    void Awake()
     {
         XZVector = new Vector2(transform.position.x, transform.position.z);
     }

@@ -5,48 +5,72 @@ using UnityEngine;
 public class CarryNetwork : MonoBehaviour
 {
     CarryNode[] Nodes;
-    CarryNode TargetNode;
-    List<CarryNode> Route;
-    float[] DistanceFromStart;
 
     void Start()
     {
         Nodes = gameObject.GetComponentsInChildren<CarryNode>();
 
-        Debug.Log(FindRoute(-24, 0, Nodes[0])[0].name);
-    }
-
-    public CarryNode[] FindRoute(float startX, float startZ, CarryNode targetNode)
-    {
-        TargetNode = targetNode;
-        Route = new List<CarryNode>();
-
-        Route.Add(ClosestNodeToLocation(startX, startZ));
-
-        DistanceFromStart = new float[Nodes.Length];
-        for (int i = 0; i < DistanceFromStart.Length; i++)
+        // TEST AREA
+        Vector2[] route = FindRoute(-25, 25, Nodes[0]);
+        foreach (Vector2 vector in route)
         {
-            DistanceFromStart[i] = float.MaxValue;
-            // This will define the distance from the start node to itself as MaxValue but this should not matter as it should never be used
+            Debug.Log(vector);
         }
-
-        // TODO
-
-        return Route.ToArray();
-        // Returns a list of all nodes on the route including the first one that needs to be reached and the target node
+        // TEST AREA
     }
 
-    void AStar(CarryNode current)
+    // TODO Find route by name (dictionary näille), Find route to start (pohjaa by nameen)
+
+    public Vector2[] FindRoute(float startX, float startZ, CarryNode targetNode)
+    // Returns a list of all nodes on the route including the first one that needs to be reached and the target node
     {
-        foreach (CarryNode neighbor in current.Neighbors)
+        CarryNode startNode = ClosestNodeToLocation(startX, startZ);
+
+        CarryNodeState endState = AStar(startNode, targetNode, new Vector2(startX, startZ));
+        Debug.Log(endState.DistanceTravelled);
+        List<Vector2> route = new List<Vector2>();
+        while (true)
         {
-            // JATKA TÄÄLTÄ, katso mallia Wikipediasta
+            route.Add(endState.Node.XZVector);
+            if (endState.PreviousState == null)
+            {
+                break;
+            }
+            endState = endState.PreviousState;
         }
+        route.Reverse();
+
+        return route.ToArray();
     }
 
-    float AStarHeuristic(CarryNode node)
+    CarryNodeState AStar(CarryNode startNode, CarryNode targetNode, Vector2 startCords)
+    // Returns the entire route (including the first node), NOTE: I'm not completely sure that A* is working, but I have not been able to show that it is not.
     {
-        return Vector2.Distance(node.XZVector, TargetNode.XZVector);
+        C5.IntervalHeap<CarryNodeState> stateQueue = new C5.IntervalHeap<CarryNodeState>(new CarryNodeStateComparer(targetNode.XZVector));
+        ISet<Vector2> vectorsVisited = new HashSet<Vector2>();
+
+        stateQueue.Add(new CarryNodeState(startNode, startCords));
+        vectorsVisited.Add(startNode.XZVector);
+
+        while (stateQueue.Count > 0)
+        {
+            CarryNodeState currentState = stateQueue.FindMin();
+            stateQueue.DeleteMin();
+            if (currentState.Node.XZVector == targetNode.XZVector)
+            {
+                return currentState;
+            }
+            foreach (CarryNode neighbor in currentState.Node.Neighbors)
+            {
+                if (vectorsVisited.Contains(neighbor.XZVector))
+                {
+                    continue;
+                }
+                vectorsVisited.Add(neighbor.XZVector);
+                stateQueue.Add(new CarryNodeState(neighbor, currentState));
+            }
+        }
+        return null;
     }
 
     CarryNode ClosestNodeToLocation(float x, float z)
