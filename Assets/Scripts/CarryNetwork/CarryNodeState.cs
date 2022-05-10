@@ -14,17 +14,17 @@ public class CarryNodeState
         PreviousState = previousState;
         if (previousState == null)
         {
-            throw new System.Exception("Null not allowed as an assigned value for previousState, use CarryNodeState(CarryNode node, Vector2 startCords) instead.");
+            throw new System.Exception("Null not allowed as an assigned value for previousState, use CarryNodeState(CarryNode node, Vector3 startCords) instead.");
         } else
         {
-            DistanceTravelled = Vector2.Distance(node.XZVector, previousState.Node.XZVector) + previousState.DistanceTravelled;
+            DistanceTravelled = Vector3.Distance(node.transform.position, previousState.Node.transform.position) + previousState.DistanceTravelled;
         }
     }
 
-    public CarryNodeState(CarryNode node, Vector2 startCords)
+    public CarryNodeState(CarryNode node, Vector3 startCords)
     {
         Node = node;
         PreviousState = null;
-        DistanceTravelled = Vector2.Distance(node.XZVector, startCords);
+        DistanceTravelled = Vector3.Distance(node.transform.position, startCords);
     }
 }

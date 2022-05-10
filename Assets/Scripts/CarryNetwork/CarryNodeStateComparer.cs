@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class CarryNodeStateComparer : IComparer<CarryNodeState>
 {
-    readonly Vector2 TargetVector;
+    readonly Vector3 TargetVector;
 
-    public CarryNodeStateComparer(Vector2 targetVector)
+    public CarryNodeStateComparer(Vector3 targetVector)
     {
         TargetVector = targetVector;
     }
@@ -23,6 +23,6 @@ public class CarryNodeStateComparer : IComparer<CarryNodeState>
 
     float AStarHeuristic(CarryNodeState state)
     {
-        return Vector2.Distance(state.Node.XZVector, TargetVector);
+        return Vector3.Distance(state.Node.transform.position, TargetVector);
     }
 }
